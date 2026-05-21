@@ -16,6 +16,12 @@ function generateRoomCode() {
  */
 async function createRoom(req, res) {
   try {
+    const { challenge, roundDuration = 60 } = req.body
+
+    if (!challenge || !challenge.trim()) {
+      return res.status(400).json({ message: "Challenge is required" })
+    }
+
     let code
     let isUnique = false
 
@@ -30,6 +36,8 @@ async function createRoom(req, res) {
       host: req.user.id,
       status: "waiting",
       participants: [req.user.id],
+      challenge: challenge.trim(),
+      roundDuration: Number(roundDuration),
     })
 
     return res.status(201).json({
@@ -37,8 +45,11 @@ async function createRoom(req, res) {
       room: {
         id: room._id,
         code: room.code,
+        roomCode: room.code,
         status: room.status,
         host: req.user.id,
+        challenge: room.challenge,
+        roundDuration: room.roundDuration,
       },
     })
   } catch (err) {
@@ -87,11 +98,22 @@ async function joinRoom(req, res) {
 
     // Emit real-time event to everyone already in the room channel
     try {
+      const roomData = {
+        id: populatedRoom._id,
+        code: populatedRoom.code,
+        roomCode: populatedRoom.code,
+        status: populatedRoom.status,
+        host: populatedRoom.host,
+        participants: populatedRoom.participants,
+        challenge: populatedRoom.challenge,
+        roundDuration: populatedRoom.roundDuration,
+      }
       getIO().to(room.code).emit("participant:joined", {
         user: { id: req.user.id, username: req.user.username },
         participants: populatedRoom.participants,
         roomCode: room.code,
       })
+      getIO().to(room.code).emit("room-updated", roomData)
     } catch (socketErr) {
       console.warn("[Room] Socket emit failed:", socketErr.message)
     }
@@ -101,9 +123,12 @@ async function joinRoom(req, res) {
       room: {
         id: populatedRoom._id,
         code: populatedRoom.code,
+        roomCode: populatedRoom.code,
         status: populatedRoom.status,
         host: populatedRoom.host,
         participants: populatedRoom.participants,
+        challenge: populatedRoom.challenge,
+        roundDuration: populatedRoom.roundDuration,
       },
     })
   } catch (err) {
@@ -129,7 +154,19 @@ async function getRoomByCode(req, res) {
       return res.status(404).json({ message: "Room not found" })
     }
 
-    return res.status(200).json({ room })
+    return res.status(200).json({
+      room: {
+        id: room._id,
+        code: room.code,
+        roomCode: room.code,
+        status: room.status,
+        host: room.host,
+        participants: room.participants,
+        challenge: room.challenge,
+        roundDuration: room.roundDuration,
+        createdAt: room.createdAt,
+      }
+    })
   } catch (err) {
     console.error("[Room] getRoomByCode error:", err)
     return res.status(500).json({ message: "Failed to get room", error: err.message })
@@ -174,9 +211,12 @@ async function getRoomState(req, res) {
       room: {
         id: room._id,
         code: room.code,
+        roomCode: room.code,
         status: room.status,
         host: room.host,
         participants: room.participants,
+        challenge: room.challenge,
+        roundDuration: room.roundDuration,
         createdAt: room.createdAt,
       },
       rounds,

@@ -25,9 +25,13 @@ export function connectToRoom(roomCode) {
   const s = getSocket()
   if (!s.connected) {
     s.connect()
+    // Wait until actually connected, then join the room channel
+    s.once('connect', () => {
+      s.emit('join-room', roomCode)
+    })
+  } else {
+    s.emit('join-room', roomCode)
   }
-  // Join the room's socket channel
-  s.emit('join-room', roomCode)
   return s
 }
 

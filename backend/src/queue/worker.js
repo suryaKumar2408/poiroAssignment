@@ -40,6 +40,10 @@ const aiWorker = new Worker(
       submissionId,
       jobStatus: "running",
     })
+    emitToRoom(roomCode, "job-running", {
+      submissionId,
+      jobStatus: "running",
+    })
 
     // ── Step 2: Call OpenRouter AI ────────────────────────────────────────────
     const model = process.env.AI_MODEL || "openai/gpt-4o-mini"
@@ -50,7 +54,7 @@ const aiWorker = new Worker(
         {
           role: "system",
           content:
-            "You are a helpful AI assistant in a competitive real-time game. Evaluate or respond to the participant's prompt clearly and concisely.",
+            "You are an AI creative battle engine.\nGenerate final creative content only.\nNever explain the prompt.\nNever provide analysis.\nNever say things like 'this description creates...'.\nReturn only the generated campaign/output.\n\nGenerate:\n\n* Campaign title\n* Tagline\n* Visual description\n* Voiceover\n* Creative concept",
         },
         {
           role: "user",
@@ -70,6 +74,11 @@ const aiWorker = new Worker(
     })
 
     emitToRoom(roomCode, "submission:completed", {
+      submissionId,
+      jobStatus: "completed",
+      aiOutput,
+    })
+    emitToRoom(roomCode, "job-completed", {
       submissionId,
       jobStatus: "completed",
       aiOutput,
@@ -99,6 +108,11 @@ aiWorker.on("failed", async (job, err) => {
       .catch(() => {})
 
     emitToRoom(roomCode, "submission:failed", {
+      submissionId,
+      jobStatus: "failed",
+      error: err.message,
+    })
+    emitToRoom(roomCode, "job-failed", {
       submissionId,
       jobStatus: "failed",
       error: err.message,

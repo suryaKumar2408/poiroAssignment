@@ -25,6 +25,14 @@ const roomSchema = new mongoose.Schema(
         ref: "user",
       },
     ],
+    challenge: {
+      type: String,
+      required: true,
+    },
+    roundDuration: {
+      type: Number,
+      default: 60,
+    },
   },
   { timestamps: true }
 )

@@ -32,6 +32,11 @@ async function createSubmission(req, res) {
 
     const room = round.room
 
+    // Enforce role: Host cannot submit prompts as a contestant
+    if (room.host.toString() === req.user.id.toString()) {
+      return res.status(403).json({ message: "Host cannot submit prompts as a contestant" })
+    }
+
     // Verify user is a participant in this room
     const isParticipant = room.participants.some(
       (p) => p.toString() === req.user.id.toString()
@@ -61,14 +66,17 @@ async function createSubmission(req, res) {
 
     // Emit queued event so clients see real-time feedback instantly
     try {
-      getIO().to(room.code).emit("submission:queued", {
+      const payload = {
         submissionId: submission._id,
         jobId: job.id,
         jobStatus: "queued",
         user: { id: req.user.id, username: req.user.username },
         roundId: round._id,
         prompt: prompt.trim(),
-      })
+      }
+      getIO().to(room.code).emit("submission:queued", payload)
+      getIO().to(room.code).emit("submission-created", payload)
+      getIO().to(room.code).emit("job-queued", payload)
     } catch (socketErr) {
       console.warn("[Submission] Socket emit failed:", socketErr.message)
     }

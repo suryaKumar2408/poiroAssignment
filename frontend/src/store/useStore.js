@@ -26,6 +26,15 @@ const useStore = create((set, get) => ({
   setRoom: (room) => set({ room }),
   setParticipants: (participants) => set({ participants }),
 
+  updateRoom: (updatedRoom) => set((state) => {
+    const newRoom = state.room ? { ...state.room, ...updatedRoom } : updatedRoom;
+    const participants = updatedRoom.participants || newRoom.participants || state.participants;
+    return {
+      room: newRoom,
+      participants
+    };
+  }),
+
   addParticipant: (user) => set((state) => {
     const already = state.participants.some(p => p.id === user.id || p._id === user.id)
     if (already) return state
@@ -46,13 +55,24 @@ const useStore = create((set, get) => ({
     currentRound: round,
   })),
 
-  updateRound: (updatedRound) => set((state) => ({
-    rounds: state.rounds.map(r => r._id === updatedRound.id ? { ...r, ...updatedRound } : r),
-    currentRound:
-      state.currentRound?._id === updatedRound.id
-        ? { ...state.currentRound, ...updatedRound }
-        : state.currentRound,
-  })),
+  updateRound: (updatedRound) => set((state) => {
+    const targetId = updatedRound._id || updatedRound.id;
+    const exists = state.rounds.some(r => (r._id || r.id) === targetId);
+    
+    const normalizedRound = {
+      _id: targetId,
+      ...updatedRound
+    };
+
+    const rounds = exists
+      ? state.rounds.map(r => (r._id || r.id) === targetId ? { ...r, ...normalizedRound } : r)
+      : [...state.rounds, normalizedRound];
+
+    return {
+      rounds,
+      currentRound: normalizedRound
+    };
+  }),
 
   // ─── Submissions ─────────────────────────────────────────────────────────────
   submissions: [],
@@ -86,7 +106,7 @@ const useStore = create((set, get) => ({
     const active = rounds.find(r => r.status === 'active') || rounds[rounds.length - 1] || null
     set({
       room,
-      participants: participants || [],
+      participants: participants || room?.participants || [],
       rounds: rounds || [],
       currentRound: active,
       submissions: submissions || [],

@@ -43,17 +43,32 @@ async function startRound(req, res) {
     // Mark room as active
     await roomModel.findByIdAndUpdate(room._id, { status: "active" })
 
+    const updatedRoom = await roomModel.findById(room._id)
+      .populate("participants", "username email")
+      .populate("host", "username email")
+
     // Broadcast to all room participants
     try {
-      getIO().to(room.code).emit("round:started", {
-        round: {
-          id: round._id,
-          roundNumber: round.roundNumber,
-          status: round.status,
-          startedAt: round.startedAt,
-          roomCode: room.code,
-        },
-      })
+      const roundData = {
+        id: round._id,
+        roundNumber: round.roundNumber,
+        status: round.status,
+        startedAt: round.startedAt,
+        roomCode: room.code,
+      }
+      const roomData = {
+        id: updatedRoom._id,
+        code: updatedRoom.code,
+        roomCode: updatedRoom.code,
+        status: updatedRoom.status,
+        host: updatedRoom.host,
+        participants: updatedRoom.participants,
+        challenge: updatedRoom.challenge,
+        roundDuration: updatedRoom.roundDuration,
+      }
+      getIO().to(room.code).emit("round-started", roundData)
+      getIO().to(room.code).emit("round:started", { round: roundData })
+      getIO().to(room.code).emit("room-updated", roomData)
     } catch (socketErr) {
       console.warn("[Round] Socket emit failed:", socketErr.message)
     }
@@ -108,15 +123,31 @@ async function endRound(req, res) {
     round.endedAt = new Date()
     await round.save()
 
+    const updatedRoom = await roomModel.findById(room._id)
+      .populate("participants", "username email")
+      .populate("host", "username email")
+
     try {
-      getIO().to(room.code).emit("round:ended", {
-        round: {
-          id: round._id,
-          roundNumber: round.roundNumber,
-          status: round.status,
-          endedAt: round.endedAt,
-        },
-      })
+      const roundData = {
+        id: round._id,
+        roundNumber: round.roundNumber,
+        status: round.status,
+        endedAt: round.endedAt,
+        roomCode: room.code,
+      }
+      const roomData = {
+        id: updatedRoom._id,
+        code: updatedRoom.code,
+        roomCode: updatedRoom.code,
+        status: updatedRoom.status,
+        host: updatedRoom.host,
+        participants: updatedRoom.participants,
+        challenge: updatedRoom.challenge,
+        roundDuration: updatedRoom.roundDuration,
+      }
+      getIO().to(room.code).emit("round-ended", roundData)
+      getIO().to(room.code).emit("round:ended", { round: roundData })
+      getIO().to(room.code).emit("room-updated", roomData)
     } catch (socketErr) {
       console.warn("[Round] Socket emit failed:", socketErr.message)
     }

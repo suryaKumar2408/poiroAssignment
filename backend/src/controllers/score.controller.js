@@ -77,11 +77,13 @@ async function submitScore(req, res) {
 
     // Broadcast leaderboard update to the whole room
     try {
-      getIO().to(room.code).emit("leaderboard:updated", {
+      const payload = {
         roundId: submission.round._id,
         roomCode: room.code,
         leaderboard,
-      })
+      }
+      getIO().to(room.code).emit("leaderboard:updated", payload)
+      getIO().to(room.code).emit("score-updated", payload)
     } catch (socketErr) {
       console.warn("[Score] Socket emit failed:", socketErr.message)
     }
