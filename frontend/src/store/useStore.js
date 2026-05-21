@@ -8,16 +8,19 @@ const useStore = create((set, get) => ({
 
   setUser: (user) => set({ user, isAuthenticated: !!user }),
   setAuthLoading: (val) => set({ authLoading: val }),
-  logout: () => set({
-    user: null,
-    isAuthenticated: false,
-    room: null,
-    participants: [],
-    rounds: [],
-    currentRound: null,
-    submissions: [],
-    scores: [],
-  }),
+  logout: () => {
+    localStorage.removeItem('token')
+    set({
+      user: null,
+      isAuthenticated: false,
+      room: null,
+      participants: [],
+      rounds: [],
+      currentRound: null,
+      submissions: [],
+      scores: [],
+    })
+  },
 
   // ─── Room ────────────────────────────────────────────────────────────────────
   room: null,

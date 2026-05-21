@@ -30,6 +30,9 @@ export default function AuthPage({ mode = 'login' }) {
 
       const fn = isLogin ? login : register
       const { data } = await fn(payload)
+      if (data.token) {
+        localStorage.setItem('token', data.token)
+      }
       setUser(data.user)
       navigate('/home', { replace: true })
     } catch (err) {
