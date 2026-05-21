@@ -6,9 +6,9 @@ A real-time multiplayer AI-powered battle room platform where users compete thro
 
 ## Live Demo
 
-Frontend: 
+Frontend: https://github.com/suryaKumar2408/poiroAssignment/tree/main/frontend
 
-Backend: 
+Backend: https://github.com/suryaKumar2408/poiroAssignment/tree/main/backend
 
 Demo Video: 
 
