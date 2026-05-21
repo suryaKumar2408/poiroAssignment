@@ -8,7 +8,12 @@ let socket = null
  */
 export function getSocket() {
   if (!socket) {
-    const socketUrl = import.meta.env.VITE_SOCKET_URL || '/'
+    const defaultSocketUrl = 
+      typeof window !== 'undefined' && 
+      (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+        ? '/'
+        : 'https://poiroassignment-3m71.onrender.com'
+    const socketUrl = import.meta.env.VITE_SOCKET_URL || defaultSocketUrl
     socket = io(socketUrl, {
       withCredentials: true,
       autoConnect: false,
