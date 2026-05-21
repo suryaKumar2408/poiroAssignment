@@ -47,7 +47,13 @@ export default function AuthPage({ mode = 'login' }) {
       <div className="auth-card fade-in">
         {/* Logo / Brand */}
         <div className="auth-brand">
-          <div className="auth-logo">⚡</div>
+          <div className="auth-logo">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ width: 64, height: 64, margin: '0 auto' }}>
+              <circle cx="11" cy="11" r="7" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              <circle cx="11" cy="11" r="3" fill="var(--primary)" fillOpacity="0.15" stroke="none" />
+            </svg>
+          </div>
           <h1 className="glow-text">PoiroAssignment</h1>
           <p className="text-secondary text-sm">Real-time AI Battle Room Platform</p>
         </div>
