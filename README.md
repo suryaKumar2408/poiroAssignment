@@ -10,7 +10,7 @@ Frontend: https://github.com/suryaKumar2408/poiroAssignment/tree/main/frontend
 
 Backend: https://github.com/suryaKumar2408/poiroAssignment/tree/main/backend
 
-Demo Video: 
+Demo Video: https://drive.google.com/file/d/1iM9kwrronGHoFpZlM7-bXL1bln1tKHWK/view?usp=sharing
 
 GitHub Repository:
 https://github.com/suryaKumar2408/poiroAssignment
