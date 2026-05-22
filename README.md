@@ -1,118 +1,41 @@
 # Poiro AI Creative Battle Room
 
-A real-time multiplayer AI-powered battle room platform where users compete through AI-generated creative challenges. The application supports real-time room collaboration, asynchronous AI job processing, role-based access control, and persistent state management.
+A real-time multiplayer AI battle room where users compete through AI-generated creative challenges. Participants join rooms, submit prompts, receive generated outputs, and compete on a live leaderboard.
 
 ---
 
 ## Live Demo
 
-Frontend: https://github.com/suryaKumar2408/poiroAssignment/tree/main/frontend
+Live App:
+https://poiro-assignment.vercel.app
 
-Backend: https://github.com/suryaKumar2408/poiroAssignment/tree/main/backend
 
-Demo Video: https://drive.google.com/file/d/1iM9kwrronGHoFpZlM7-bXL1bln1tKHWK/view?usp=sharing
+Demo Video:
+https://drive.google.com/file/d/1iM9kwrronGHoFpZlM7-bXL1bln1tKHWK/view?usp=sharing
 
 GitHub Repository:
 https://github.com/suryaKumar2408/poiroAssignment
 
 ---
 
-## Project Overview
+# Project Overview
 
-The project implements a complete AI battle workflow:
+This project implements a complete battle workflow:
 
-- User enters the application with persistent identity
-- Host creates a room and defines a challenge
-- Participants join using room code
-- Host starts battle rounds
-- Participants submit prompts
-- Backend creates asynchronous generation jobs
-- Jobs are processed independently
-- AI-generated content is displayed
-- Host scores submissions
-- Leaderboard ranks participants
-
----
-
-## Features
-
-### Authentication & Identity
-- JWT authentication
-- Persistent login state
-- Secure protected routes
-
-### Room Management
-- Create room
-- Join room via room code
-- Challenge-based room creation
-- Shareable room system
-
-### Role Separation
-
-#### Host
-- Create challenge room
-- Start battle round
-- Score participant submissions
-- Control room lifecycle
-
-#### Participant
-- Join room
-- Submit prompt entries
-- View generated outputs
-
-Backend permission checks enforce role restrictions.
+1. Host creates a room
+2. Host creates a challenge
+3. Participants join via room code
+4. Host starts the round
+5. Participants submit prompts
+6. Backend creates asynchronous generation jobs
+7. Jobs execute independently
+8. Results update in real time
+9. Host scores submissions
+10. Leaderboard updates instantly
 
 ---
 
-## Real-Time Functionality
-
-Implemented using Socket.IO:
-
-- Room updates
-- User joined events
-- Round lifecycle updates
-- Submission updates
-- Job state updates
-- Score updates
-- Leaderboard updates
-
-No polling or manual refresh required.
-
----
-
-## Tech Stack
-
-### Frontend
-- React.js
-- Vite
-- TypeScript
-- Zustand
-- Tailwind CSS
-- Axios
-- Socket.IO Client
-
-### Backend
-- Node.js
-- Express.js
-- Socket.IO
-- JWT
-- BullMQ
-
-### Database
-- MongoDB Atlas
-
-### Queue
-- BullMQ
-- Redis
-
-### Deployment
-- Vercel
-- Render
-- Railway Redis
-
----
-
-## Architecture
+# Architecture Overview
 
 ```text
 User
@@ -125,7 +48,7 @@ Node.js + Express Backend
    ↓
 BullMQ Queue
    ↓
-Worker
+Worker Process
    ↓
 AI Provider
    ↓
@@ -134,46 +57,45 @@ MongoDB + Redis
 
 ---
 
-## Repository Structure
+# Tech Stack
 
-```text
-poiroAssignment
-│
-├── backend
-│   ├── src
-│   │   ├── config
-│   │   ├── controllers
-│   │   ├── middlewares
-│   │   ├── models
-│   │   ├── queue
-│   │   ├── routes
-│   │   └── socket
-│   │
-│   ├── server.js
-│   └── package.json
-│
-├── frontend
-│   ├── src
-│   │   ├── api
-│   │   ├── components
-│   │   ├── pages
-│   │   ├── socket
-│   │   ├── store
-│   │   ├── main.jsx
-│   │   └── index.css
-│   │
-│   ├── vite.config.js
-│   └── package.json
-│
-├── README.md
-└── .env.example
-```
+## Frontend
+
+- React.js
+- Vite
+- Tailwind CSS
+- Zustand
+- Axios
+- Socket.IO Client
+
+## Backend
+
+- Node.js
+- Express.js
+- Socket.IO
+- JWT Authentication
+- BullMQ
+
+## Database
+
+- MongoDB Atlas
+
+## Queue
+
+- Redis
+- BullMQ
+
+## Deployment
+
+- Frontend → Vercel
+- Backend → Render
+- Redis → Railway
 
 ---
 
-## Database Entity Model
+# Database Schema / Entity Model
 
-### User
+## User
 
 ```text
 id
@@ -183,7 +105,7 @@ password
 role
 ```
 
-### Room
+## Room
 
 ```text
 id
@@ -193,7 +115,7 @@ challenge
 status
 ```
 
-### Participant
+## Participant
 
 ```text
 id
@@ -201,7 +123,7 @@ roomId
 userId
 ```
 
-### Round
+## Round
 
 ```text
 id
@@ -210,7 +132,7 @@ roundNumber
 status
 ```
 
-### Submission
+## Submission
 
 ```text
 id
@@ -221,7 +143,7 @@ score
 status
 ```
 
-### Job
+## Job
 
 ```text
 id
@@ -231,9 +153,29 @@ status
 
 ---
 
-## Realtime Event Model
+# Role and Permission Logic
 
-### Client → Server
+## Host Permissions
+
+- Create room
+- Add challenge
+- Start rounds
+- Score submissions
+- Control room lifecycle
+
+## Participant Permissions
+
+- Join room
+- Submit prompts
+- View generated outputs
+
+Permissions are enforced on the backend and not only on the frontend.
+
+---
+
+# Realtime Event Model
+
+## Client → Server
 
 ```javascript
 join-room
@@ -242,7 +184,7 @@ submit-prompt
 score-submission
 ```
 
-### Server → Client
+## Server → Client
 
 ```javascript
 room-updated
@@ -252,94 +194,181 @@ job-running
 job-completed
 job-failed
 score-updated
+leaderboard-updated
 ```
 
 ---
 
-## Generation Job Lifecycle
+# Generation Job Lifecycle
 
 ```text
-Participant submits prompt
+User submits prompt
         ↓
 Submission created
         ↓
-BullMQ Job created
+BullMQ job created
         ↓
-Redis Queue
+Redis queue
         ↓
 Worker picks job
         ↓
-AI generation starts
+AI provider executes generation
         ↓
 Database updates
         ↓
 Socket event emitted
         ↓
-Frontend updates instantly
+Frontend updates automatically
 ```
 
+Job states:
+
+- Queued
+- Running
+- Completed
+- Failed
+
 ---
 
-## Battle Mechanism
+# Chosen Judging / Scoring Mechanism
 
-Participants submit prompts according to the challenge.
+Current implementation uses manual scoring by the host.
 
-Host manually scores outputs based on:
+Scoring criteria:
 
 - Creativity
+- Relevance to challenge
 - Prompt quality
-- Relevance
 - Originality
 
-### Weaknesses
+Reason:
 
-- Subjective evaluation
-- Human bias possible
-
-### Production Improvements
-
-- AI-assisted judging
-- Weighted ranking system
-- Community voting
+Manual scoring keeps the implementation simple and allows focus on completing the main battle loop.
 
 ---
 
-## Persistence
+# Persistence Strategy
 
-Persisted:
+## Persisted Data
 
 - Users
 - Rooms
 - Participants
 - Rounds
 - Submissions
-- Job states
 - Scores
+- Job states
 
-Refresh does not lose:
+## Not Persisted
 
-- Room state
-- Challenge
+- Temporary socket connections
+- Active connection IDs
+- Frontend in-memory state
+
+Refreshing pages does not lose:
+
+- Current room
 - Participants
+- Challenge
 - Submission history
-- Generated outputs
-- Leaderboard
+- Leaderboard state
 
 ---
 
-## Failure Handling
+# AI / Provider Assumptions
 
-Implemented handling for:
+Current assumptions:
 
-- Invalid prompts
-- Failed AI jobs
-- Queue failures
-- Socket disconnects
-- Backend validation failures
+- AI provider returns valid responses
+- Queue jobs execute correctly
+- AI response time remains acceptable
+- Provider service remains available
+
+Current Provider:
+
+- OpenRouter API
 
 ---
 
-## Local Setup
+# Failure Handling Strategy
+
+Handled failures include:
+
+### Validation Failures
+
+- Empty prompts
+- Invalid room codes
+- Invalid challenge data
+
+### Queue Failures
+
+- Failed jobs move into failed state
+
+### Socket Failures
+
+- Automatic reconnect handling
+
+### API Failures
+
+- Error responses shown in UI
+
+---
+
+# Tradeoffs
+
+### Node.js backend instead of Python
+
+Reason:
+
+Node.js aligns with my existing tech stack and enabled faster implementation of:
+
+- Real-time Socket.IO communication
+- Queue processing
+- Event handling
+
+### Manual scoring
+
+Reason:
+
+Keeps focus on the core battle workflow.
+
+### Text generation instead of media generation
+
+Reason:
+
+The assignment prioritizes a complete playable loop over a production media pipeline.
+
+---
+
+# Known Limitations
+
+- Single-round implementation
+- Basic leaderboard logic
+- Limited validation rules
+
+The following were intentionally not implemented because they were outside assignment scope:
+
+- Production-grade authentication
+- Full media generation pipeline
+- Advanced moderation systems
+- Large-scale infrastructure
+- Multiple tournament formats
+
+---
+
+# Improvements With More Time
+
+- Spectator mode with reactions
+- Retry/backoff for failed jobs
+- Real image/media generation
+- Reconnect recovery for WebSockets
+- Event-sourced room activity log
+- Automated backend tests
+- Advanced tournament formats
+
+---
+
+# Local Setup Instructions
 
 Clone repository:
 
@@ -347,15 +376,7 @@ Clone repository:
 git clone https://github.com/suryaKumar2408/poiroAssignment.git
 ```
 
-Frontend:
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-Backend:
+Backend setup:
 
 ```bash
 cd backend
@@ -363,59 +384,41 @@ npm install
 npm run dev
 ```
 
+Frontend setup:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
 ---
 
-## Environment Variables
+# Environment Variables
 
-### Backend
+Create:
+
+`.env`
+
+Example:
 
 ```env
 PORT=4000
+
 MONGODB_URI=
+
 REDIS_URL=
+
 JWT_SECRET=
+
 OPENROUTER_API_KEY=
+
 ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3000
 ```
 
 ---
 
-## .env.example
-
-```env
-PORT=
-MONGODB_URI=
-REDIS_URL=
-JWT_SECRET=
-OPENROUTER_API_KEY=
-ALLOWED_ORIGINS=
-```
-
----
-
-## Known Limitations
-
-- Single-round implementation
-- Basic scoring system
-- Limited validations
-- No advanced moderation
-- No image generation
-
----
-
-## Improvements With More Time
-
-- AI judging system
-- Image generation support
-- Retry mechanism
-- Spectator mode
-- Reconnect recovery
-- Multiple battle formats
-- Automated tests
-
----
-
-## Test Flow
+# Main Battle Flow
 
 ```text
 Login
@@ -436,19 +439,18 @@ Running
 ↓
 Completed
 ↓
-Score
+Score Submission
 ↓
-Leaderboard
+Leaderboard Update
 ```
 
 ---
 
-## Author
+# Author
 
 Surya Kumar
 
-Email:
-suryashukla2408@gmail.com
+Email: suryashukla2408@gmail.com
 
 GitHub:
 https://github.com/suryaKumar2408
